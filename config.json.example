@@ -7,7 +7,7 @@
         "123"
     ],
     "servers": [
-        {
+        1: {
             "name": "test server",
             "user": "testuser",
             "overide_command_line": "",
