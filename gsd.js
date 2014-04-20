@@ -16,28 +16,28 @@ Object.keys(config.servers).forEach(function(item, index) {
 
 function initServer(index){
     data = config.servers[index];
-    servers[index] = new gameserver(data);
-    servers[index].console = io.of('/'+index);
+    servers[data.id] = new gameserver(data);
+    servers[data.id].console = io.of('/'+index);
  
-    servers[index].on('console', function(data){
-	servers[index].console.emit('console', {'l':data.toString()});
+    servers[data.id].on('console', function(data){
+	servers[data.id].console.emit('console', {'l':data.toString()});
     });
     
-    servers[index].on('statuschange', function(data) {
-	servers[index].console.emit('statuschange', {'status':servers[index].status});
+    servers[data.id].on('statuschange', function(data) {
+	servers[data.id].console.emit('statuschange', {'status':servers[data.id].status});
     });
     
-    servers[index].on('query', function(data) {
-	servers[index].console.emit('query', {"query":servers[index].lastquery()});
+    servers[data.id].on('query', function(data) {
+	servers[data.id].console.emit('query', {"query":servers[data.id].lastquery()});
     });
     
 
-    servers[index].on('processStats', function(data) {
-	servers[index].console.emit('process', {"process":servers[index].usagestats});
+    servers[data.id].on('processStats', function(data) {
+	servers[data.id].console.emit('process', {"process":servers[data.id].usagestats});
     });
     
-    servers[index].console.on('sendconsole', function (command) {
-    	if(servers[index].status == ON){
+    servers[data.id].console.on('sendconsole', function (command) {
+    	if(servers[data.id].status == ON){
 		console.log(command);
     	}else{
     		console.log("Server is off. You cannot send command!");
@@ -78,7 +78,7 @@ restserver.get('/gameservers/', function info(req, res, next){
     });
   res.send(response);
 });
-
+//TODO: ID work
 restserver.post('/gameservers/', function info(req, res, next){
   id = config.servers.push(JSON.parse(req.params['settings']));
 
