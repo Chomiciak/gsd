@@ -78,17 +78,24 @@ restserver.get('/gameservers/', function info(req, res, next){
     });
   res.send(response);
 });
-//TODO: ID work
+=
 restserver.post('/gameservers/', function info(req, res, next){
-  id = config.servers.push(JSON.parse(req.params['settings']));
-
-  // Stupid java indexes
-  id = id - 1;
-  saveconfig(config); 
-  initServer(id);
-  service = servers[id];
-  service.create();
-  res.send({"id":String(id)});
+	//Getting index of last server
+	var lastIndex = config.server.lenght - 1;
+	//Getting id of last server + 1 = id of server we are creating now
+	sId = servers[lastIndex].id + 1;
+	//Getting index of new server
+  	index = config.servers.push(JSON.parse(req.params['settings']));
+	// Stupid java indexes *Ch: not very :)
+  	index = index - 1;
+  	// Adding id to server
+  	config.servers[index].id = sId;
+  	//Rest (Saveing => initlializing => creating => writing id as output)
+  	saveconfig(config); 
+  	initServer(index);
+  	service = servers[sId];
+  	service.create();
+  	res.send({"id":String(sId)});
 });
 
 restserver.del('/gameservers/:id', function info(req, res, next){
