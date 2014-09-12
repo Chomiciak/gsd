@@ -1,4 +1,7 @@
 {
+    "debug": {
+        "skipAuth": "false"
+    },
     "daemon": {
         "listenport": 8003,
         "consoleport": 8031
