@@ -23,6 +23,10 @@ restserver.use(
 );
 
 function restauth(req, service, permission){
+  if (config.debug.skipAuth == "true"){
+    return true;
+  }
+  
   if (!('X-Access-Token' in req.headers) && 'x-access-token' in req.headers){
     req.headers['X-Access-Token'] = req.headers['x-access-token']
   }
