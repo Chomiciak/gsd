@@ -72,10 +72,7 @@ restserver.get('/', function info(req, res, next){
 restserver.get('/keys/', function info(req, res, next){
   if (!restauth(req, -1, "keys:list")){res = unauthorized(res); return next();}
   response = [];
-  keys.forEach(
-    function(service){
-      response.push(service.info());
-    });
+  response.push(keys);
   res.send(response);
 });
 
@@ -108,7 +105,7 @@ restserver.del('/keys/:id', function info(req, res, next){
 restserver.get('/keys/:id', function (req, res, next){
   if (!restauth(req, req.params.id, "key:get")){res = unauthorized(res); return next();}
   key = keys[req.params.id];
-  res.send(key.info());
+  res.send(key;
 });
 
 /*
