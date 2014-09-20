@@ -60,6 +60,16 @@ function saveconfig(config){
   }); 
 }
 
+function savekeys(keys){
+  fs.writeFile("keys.json", JSON.stringify(keys, null, 4), function(err) {
+    if(err) {
+      console.log(err);
+    } else {
+      console.log("JSON saved to " + outputFilename);
+    }
+  }); 
+}
+
 function savesettings(){
     var servers = require('./services').servers;
     var config = require('./config.json');
