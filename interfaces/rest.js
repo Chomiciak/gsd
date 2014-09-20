@@ -7,7 +7,7 @@ var plugins = require("../services/plugins.js").plugins;
 var saveconfig = require('../utls.js').saveconfig;
 var savekeys = require('../utls.js').savekeys;
 var servers = require('../services/index.js').servers;
-var keys = require('./keys.json');
+var keys = require('../keys.json');
 var initServer = require('../services/index.js').initServer;
 var restserver = restify.createServer();
 
@@ -88,7 +88,7 @@ restserver.post('/keys/', function info(req, res, next){
   id = keys.push(JSON.parse(req.params['settings']));
   // As push returns the array length, not the id
   savekeys(keys);
-  res.send({"Key added!"});
+  res.send("Key added!");
 });
 
 /*
