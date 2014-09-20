@@ -1,0 +1,92 @@
+Keys Management
+===============
+
+
+Get all keys
+************
+.. code-block:: bash
+
+     GET /keys/
+
+.. code-block:: js
+
+        [
+          {
+            "key123456": {
+              "services": [0,1,2,3],
+              "permissions":["services:new","services:list","service:get","service:update","service:delete","service:power","service:files","service:query","service:console","service:addons","ftp"]
+            }
+          },
+          {
+            "key654321": {
+              "services": [5,4,2],
+              "permissions":["service:update","service:delete","ftp"]
+            }
+          }
+        ]
+
+
+Add a key
+*********
+
+.. code-block:: bash
+
+     POST /keys/
+      {
+        "theKeyNameHere": {
+          "services": [5,4,2],
+          "permissions":["service:update","service:delete","ftp"]
+        }
+      }
+
+.. code-block:: js
+
+      {
+        "theKeyNameHere": {
+          "services": [5,4,2],
+          "permissions":["service:update","service:delete","ftp"]
+        }
+      }
+
+Get key
+*******
+.. code-block:: bash
+
+     GET /keys/ID
+
+.. code-block:: js
+
+      {
+        "ID": {
+          "services": [5,4,2],
+          "permissions":["service:update","service:delete","ftp"]
+        }
+      }
+
+Update key
+**********
+
+.. code-block:: bash
+
+     PUT /gameservers/ID
+     {"permissions":["service:update","service:delete","ftp","different:permissions"]}
+
+.. code-block:: js
+
+      {
+        "ID": {
+          "services": [5,4,2],
+          "permissions":["service:update","service:delete","ftp","different:permissions"]
+        }
+      }
+
+Delete key
+**********
+
+.. code-block:: bash
+
+     DEL /keys/ID
+
+.. code-block:: js
+
+   ok
