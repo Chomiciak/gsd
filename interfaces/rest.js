@@ -5,7 +5,9 @@ var hasPermission = require('../auth.js').hasPermission;
 var config = require('../config.json');
 var plugins = require("../services/plugins.js").plugins;
 var saveconfig = require('../utls.js').saveconfig;
+var savekeys = require('../utls.js').savekeys;
 var servers = require('../services/index.js').servers;
+var keys = require('./keys.json');
 var initServer = require('../services/index.js').initServer;
 var restserver = restify.createServer();
 
@@ -57,6 +59,82 @@ restserver.get('/', function info(req, res, next){
   res.send(response);
 });
 
+/*
+ *
+ * Keys
+ *
+ */
+ 
+/*
+ * List keys
+ */
+
+restserver.get('/keys/', function info(req, res, next){
+  if (!restauth(req, -1, "keys:list")){res = unauthorized(res); return next();}
+  response = [];
+  keys.forEach(
+    function(service){
+      response.push(service.info());
+    });
+  res.send(response);
+});
+
+/*
+ * Add key
+ */
+
+restserver.post('/keys/', function info(req, res, next){
+  if (!restauth(req, -1, "keys:new")){res = unauthorized(res); return next();}  
+  id = keys.push(JSON.parse(req.params['settings']));
+  // As push returns the array length, not the id
+  savekeys(keys);
+  res.send({"Key added!"});
+});
+
+/*
+ * Delete key
+ */
+ 
+restserver.del('/keys/:id', function info(req, res, next){
+  if (!restauth(req, req.params.id, "key:delete")){res = unauthorized(res); return next();}  
+  id = keys.splice(req.params.id,1);
+  savekeys(keys);
+  res.send("ok");
+});
+
+/*
+ * Get key
+ */
+restserver.get('/keys/:id', function (req, res, next){
+  if (!restauth(req, req.params.id, "key:get")){res = unauthorized(res); return next();}
+  key = keys[req.params.id];
+  res.send(key.info());
+});
+
+/*
+ * Update key
+ */
+restserver.put('/keys/:id', function info(req, res, next){
+  if (!restauth(req, req.params.id, "key:update")){res = unauthorized(res); return next();}
+  key = keys[req.params.id];
+  key.updatevariables(JSON.parse(req.params['variables']), true);
+  savekeys(keys);
+  
+  res.send(key.info());
+});
+
+
+/*
+ *
+ * Servers (services)
+ *
+ */
+ 
+/*
+ * List servers (services)
+ */
+
+
 restserver.get('/gameservers/', function info(req, res, next){
   if (!restauth(req, -1, "services:list")){res = unauthorized(res); return next();}
   response = [];
@@ -66,6 +144,10 @@ restserver.get('/gameservers/', function info(req, res, next){
     });
   res.send(response);
 });
+
+/*
+ * Add server (service)
+ */
 
 restserver.post('/gameservers/', function info(req, res, next){
   if (!restauth(req, -1, "services:new")){res = unauthorized(res); return next();}  
@@ -79,6 +161,9 @@ restserver.post('/gameservers/', function info(req, res, next){
   res.send({"id":String(id)});
 });
 
+/*
+ * Delete server (service)
+ */
 restserver.del('/gameservers/:id', function info(req, res, next){
   if (!restauth(req, req.params.id, "service:delete")){res = unauthorized(res); return next();}  
   service = servers[req.params.id];
@@ -89,13 +174,18 @@ restserver.del('/gameservers/:id', function info(req, res, next){
   res.send("ok");
 });
 
+/*
+ * Get server (service)
+ */
 restserver.get('/gameservers/:id', function (req, res, next){
   if (!restauth(req, req.params.id, "service:get")){res = unauthorized(res); return next();}
   service = servers[req.params.id];
   res.send(service.info());
 });
 
-
+/*
+ * Update server (service)
+ */
 restserver.put('/gameservers/:id', function info(req, res, next){
   if (!restauth(req, req.params.id, "service:update")){res = unauthorized(res); return next();}
   service = servers[req.params.id];
@@ -105,7 +195,9 @@ restserver.put('/gameservers/:id', function info(req, res, next){
   res.send(service.info());
 });
 
-
+/*
+ * Turn on server (service)
+ */
 restserver.get('/gameservers/:id/on', function on(req, res, next){
   if (!restauth(req, req.params.id, "service:power")){res = unauthorized(res); return next();}
   service = servers[req.params.id];
@@ -114,6 +206,9 @@ restserver.get('/gameservers/:id/on', function on(req, res, next){
   
 });
 
+/*
+ * Turn off server (service)
+ */
 restserver.get('/gameservers/:id/off', function off(req, res, next){
   if (!restauth(req, req.params.id, "service:power")){res = unauthorized(res); return next();}
   service = servers[req.params.id]; 
@@ -121,28 +216,46 @@ restserver.get('/gameservers/:id/off', function off(req, res, next){
   res.send('ok')
 });
 
+/*
+ * Restart server (service)
+ */
 restserver.get('/gameservers/:id/restart', function restart(req, res, next){
   if (!restauth(req, req.params.id, "service:power")){res = unauthorized(res); return next();}
   service = servers[req.params.id];
   service.restart();
   res.send('ok')
 });
+
+/*
+ * Get server's (service's) config list
+ */
 restserver.get('/gameservers/:id/configlist', function configlist(req, res, next){
   if (!restauth(req, req.params.id, "service:files")){res = unauthorized(res); return next();}
   service = servers[req.params.id]; 
   res.send(service.configlist());
 });
+
+/*
+ * Get server's (service's) map list
+ */
 restserver.get('/gameservers/:id/maplist', function maplist(req, res, next){
   if (!restauth(req, req.params.id, "service:files")){res = unauthorized(res); return next();}
   service = servers[req.params.id]; 
   res.send(service.maplist());
 });
+
+/*
+ * Get server's (service's) query data
+ */
 restserver.get('/gameservers/:id/query', function query(req, res, next){
   if (!restauth(req, req.params.id, "service:query")){res = unauthorized(res); return next();}
   service = servers[req.params.id]; res.send(service.lastquery());
   
 });
 
+/*
+ * Execute console command on server (service)
+ */
 restserver.post('/gameservers/:id/console', function command(req, res, next){
   if (!restauth(req, req.params.id, "service:console")){res = unauthorized(res); return next();}
   service = servers[req.params.id];
@@ -156,18 +269,27 @@ restserver.get('/gameservers/:id/addonsinstalled', function command(req, res, ne
   res.send(service.addonlist());
 });
 
+/*
+ * Get specified file from server's (service's) directory
+ */
 restserver.get(/^\/gameservers\/(\d+)\/file\/(.+)/, function(req, res, next) {
     if (!restauth(req, req.params[0], "service:files")){res = unauthorized(res); return next();}
   service = servers[req.params[0]];
   res.send({'contents':service.readfile(req.params[1])});
 });
 
+/*
+ * Get folder content from server's (service's) directory
+ */
 restserver.get(/^\/gameservers\/(\d+)\/folder\/(.+)/, function(req, res, next) {
     if (!restauth(req, req.params[0], "service:files")){res = unauthorized(res); return next();}
   service = servers[req.params[0]];
   res.send(service.dir(req.params[1]));
 });
 
+/*
+ * Add file to server's (service's) directory
+ */
 restserver.put(/^\/gameservers\/(\d+)\/file\/(.+)/, function(req, res, next) {
   if (!restauth(req, req.params[0], "service:files")){res = unauthorized(res); return next();}
   if ('contents' in req.params){
@@ -178,25 +300,37 @@ restserver.put(/^\/gameservers\/(\d+)\/file\/(.+)/, function(req, res, next) {
   }
 });
 
-
+/*
+ * Get gamemodes from server (service)
+ */
 restserver.get('/gameservers/:id/gamemodes', function command(req, res, next){
   if (!restauth(req, req.params.id, "gamemodes:get")){res = unauthorized(res); return next();}
   service = servers[req.params.id];
   service.getgamemodes(res);
 });
 
+/*
+ * Edit server's (service's) gamemode
+ */
 restserver.put('/gameservers/:id/gamemodes', function command(req, res, next){
   if (!restauth(req, req.params.id, "gamemodes:edit")){res = unauthorized(res); return next();}
   service = servers[req.params.id];
   service.installgamemode(req.params['gamemode']);
   res.send("ok");
 });
+
+/*
+ * Delete server's (service's) gamemode
+ */
 restserver.del('/gameservers/:id/gamemodes', function command(req, res, next){
   if (!restauth(req, req.params.id, "gamemodes:edit")){res = unauthorized(res); return next();}  
   service = servers[req.params.id];
   service.getgamemode(res);
 });
 
+/*
+ * Get server's (service's) plugins list in category
+ */
 restserver.get('/gameservers/:id/plugins/categories/:category', function command(req, res, next){
   if (!restauth(req, req.params.id, "plugins:list")){res = unauthorized(res); return next();}
   service = servers[req.params.id];
@@ -204,6 +338,9 @@ restserver.get('/gameservers/:id/plugins/categories/:category', function command
   service.pluginsByCategory(req.params['category'], req.query.size, req.query.start, function(err, results){res.send(results)});
 });
 
+/*
+ * Get server's (service's) plugins categories list
+ */
 restserver.get('/gameservers/:id/plugins/categories', function command(req, res, next){
   if (!restauth(req, req.params.id, "plugins:list")){res = unauthorized(res); return next();}
 
@@ -211,6 +348,9 @@ restserver.get('/gameservers/:id/plugins/categories', function command(req, res,
   service.plugincategories(function(err, results){res.send(results)});
 });
 
+/*
+ * Search plugin in server (service)
+ */
 restserver.post('/gameservers/:id/plugins/search', function command(req, res, next){
   if (!restauth(req, req.params.id, "plugins:list")){res = unauthorized(res); return next();}
   service = servers[req.params.id];
